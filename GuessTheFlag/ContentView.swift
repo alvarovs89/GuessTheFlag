@@ -31,7 +31,6 @@ struct ContentView: View {
                     .foregroundColor(.white)
                         .font(.largeTitle)
                         .fontWeight(.black)
-//                    .scaledToFit()
                     
 
                 }
@@ -51,6 +50,7 @@ struct ContentView: View {
             }
         }
         .alert(isPresented: $showingScore) {
+//            I add Text("\(scoreMessage)" to a message:
             Alert(title: Text(scoreTitle), message: Text("\(scoreMessage)"), dismissButton: .default(Text("Continue")) {
                 self.askQuestion()
                 })
@@ -59,10 +59,12 @@ struct ContentView: View {
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
             scoreTitle = "Correct"
+            // Score
             userScore += 1
            scoreMessage = "Your score is \(userScore)"
         } else {
         scoreTitle = "Wrong"
+            // ScoreMessage
         scoreMessage = "Sorry that flag is from \(countries[number])"
 
         }
