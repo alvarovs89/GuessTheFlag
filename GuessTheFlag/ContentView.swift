@@ -9,15 +9,37 @@
 import SwiftUI
 
 
+struct flagImage: View {
+    var imagesName: String
+    var body:some View {
+        Image(imagesName)
+            .renderingMode(.original)
+            .clipShape(Capsule())
+            .overlay(Capsule().stroke(Color.black,lineWidth: 1))
+            .shadow(color: .black, radius: 2)
+    }
+}
+
 struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
+    
+     //MARK:  Score variables
     @State private var showingScore = false
     @State private var scoreTitle = ""
     @State private var userScore = 0
     @State private var scoreMessage = ""
+    
+    //MARK: Animation variables
+    @State private var opacityAmount = 1.0
+    @State private var rotationAmount = 0.0
 
 
+    //MARK:  flagImage for day 24
+
+
+    
+    
     var body: some View {
         ZStack {
             LinearGradient(gradient: Gradient(colors: [.blue, .black]), startPoint: .top, endPoint: .bottom)
@@ -37,34 +59,42 @@ struct ContentView: View {
                 ForEach (0..<3) { number in
                     Button(action: {
                         self.flagTapped(number) // flag was tapped
+                        self.opacityAmount = 0.25
+
                     }) {
-                        Image(self.countries[number])
-                            .renderingMode(.original)
-                        .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color.black,lineWidth: 1))
-                            .shadow(color: .black, radius: 2)
-                
+                        flagImage(imagesName: self.countries[number])
                     }
+                        .opacity(number == self.correctAnswer ? 1 : self.opacityAmount)
+                    .rotation3DEffect(.degrees(number == self.correctAnswer ? self.rotationAmount : 0 ), axis: (x: 0, y: 1, z: 0))
                 }
+                Text("Your Score is: \(userScore)")
+                    .font(.title)
+                    .foregroundColor(.white)
                 Spacer()
             }
         }
         .alert(isPresented: $showingScore) {
-//            I add Text("\(scoreMessage)" to a message:
             Alert(title: Text(scoreTitle), message: Text("\(scoreMessage)"), dismissButton: .default(Text("Continue")) {
                 self.askQuestion()
                 })
         }
     }
+    
+    
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
             scoreTitle = "Correct"
+            rotationAmount = 0.0
+
+        withAnimation(.interpolatingSpring(stiffness: 20, damping: 5)) {
+            self.rotationAmount += 360
+        }
             // Score
             userScore += 1
            scoreMessage = "Your score is \(userScore)"
+            
         } else {
         scoreTitle = "Wrong"
-            // ScoreMessage
         scoreMessage = "Sorry that flag is from \(countries[number])"
 
         }
@@ -73,6 +103,13 @@ struct ContentView: View {
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        
+        //Animation
+        withAnimation(.easeInOut) {
+            self.opacityAmount = 1.0
+        }
+            self.rotationAmount = 0.0
+        
     }
 }
 
